@@ -247,6 +247,12 @@ config CORELAB_TVPRO
 	help
 	  Select CoreLab TVPro config
 
+config AOC_65T33Z
+	bool "AOC 65T33Z"
+	select TARGET_AOC_65T33Z
+	help
+	  Select AOC 65T33Z config
+
 endchoice
 
 config TARGET_KHADAS_VIM4
@@ -256,6 +262,10 @@ config TARGET_KHADAS_VIM4
 config TARGET_CORELAB_TVPRO
 	bool "CoreLab TVPro board"
 	depends on CORELAB_TVPRO
+
+config TARGET_AOC_65T33Z
+	bool "AOC 65T33Z board"
+	depends on AOC_65T33Z
 
 endif
 
@@ -305,4 +315,5 @@ endif
 
 source "board/khadas/kvim4/Kconfig"
 source "board/khadas/tvpro/Kconfig"
+source "board/khadas/65t33z/Kconfig"
 source "board/khadas/kvim1s/Kconfig"

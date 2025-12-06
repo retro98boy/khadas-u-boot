@@ -1,0 +1,32 @@
+if TARGET_AOC_65T33Z
+
+config ENV_HDMITX_ONLY
+	string
+	option env="BOARD_COMPILE_HDMITX_ONLY"
+
+config HDMITX_ONLY
+	bool "hdmi tx only"
+	default y if ENV_HDMITX_ONLY="true"
+
+config SYS_SOC
+	default "t7"
+
+config SYS_BOARD
+	default "65t33z"
+
+config SYS_VENDOR
+	default "khadas"
+
+config SYS_CONFIG_NAME
+	default "65t33z"
+
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
+config AML_REBOOT
+       bool "reboot cmd"
+       default y
+       help
+         support uboot reboot cmd
+endif

@@ -90,6 +90,9 @@ endif
 ifeq ($(SOC),tvpro)
 SOC     =   t7
 endif
+ifeq ($(SOC),65t33z)
+SOC     =   t7
+endif
 ifeq ($(SOC),kvim1s)
 SOC     =   s4
 endif

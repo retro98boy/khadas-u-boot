@@ -1,0 +1,169 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2021 Nick <nick@khadas.com>.
+ */
+
+/dts-v1/;
+
+#include "meson-t7-txxx.dtsi"
+#include "khadas-ts050-panel.dtsi"
+
+/ {
+	compatible = "aoc,65t33z","amlogic,t7-an400-lpddr4x", "amlogic,t7-txxx", "amlogic,meson-t7";
+	model = "AOC 65T33Z";
+
+	aliases {
+		serial0 = &uart_a;
+		serial1 = &uart_b;
+		spi0 = &spifc;
+		spi1 = &spicc0;
+		spi2 = &spicc1;
+		spi3 = &spicc2;
+		spi4 = &spicc3;
+		spi5 = &spicc4;
+		spi6 = &spicc5;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c_AO_A;
+		i2c7 = &i2c_AO_B;
+	};
+
+	chosen {
+		stdout-path = "serial0:921600n8";
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	vddio_boot: regulator-vddio_boot {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDIO_BOOT";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	vddio_ao18: regulator-vddio_ao18 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDIO_AO18";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	vcc_3v3: regulator-vcc_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	emmc_pwrseq: emmc-pwrseq {
+		compatible = "mmc-pwrseq-emmc";
+		/* reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>; */
+	};
+
+	tee: tee {
+		compatible = "linaro,optee-tz";
+		method = "smc";
+	};
+};
+
+&ethmac {
+	status = "okay";
+	pinctrl-names = "external_eth_rgmii_pins";
+	pinctrl-0 = <&external_eth_rgmii_pins>;
+	internal_phy = <0>;
+	mc_val = <0x1621>;
+	cali_val = <0xa0000>;
+};
+
+&ir {
+	status = "disabled";
+	/* pinctrl-0 = <&remote_input_ao_pins>; */
+	/* pinctrl-names = "default"; */
+};
+
+&pinctrl_periphs {
+	bl_pwm_off_pins: bl_pwm_off_pin {
+	};
+};
+
+&saradc {
+	status = "okay";
+	vref-supply = <&vddio_ao18>;
+};
+
+&amhdmitx {
+	enc_idx = <2>; /* value can be 0 or 2 */
+};
+
+/* eMMC */
+&sd_emmc_c {
+	status = "okay";
+	pinctrl-0 = <&emmc_pins>;
+	pinctrl-names = "default";
+
+	bus-width = <8>;
+	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
+	max-frequency = <200000000>;
+	non-removable;
+	disable-wp;
+	/* mmc-ddr-1_8v; */
+	card_type = <1>;
+
+	init_co_phase = <2>;
+	init_tx_phase = <0>;
+
+	hs_co_phase = <2>;
+	hs_to_phase = <0>;
+
+	hs2_co_phase = <2>;
+	hs2_to_phase = <0>;
+
+	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
+
+	mmc-pwrseq = <&emmc_pwrseq>;
+	vmmc-supply = <&vcc_3v3>;
+	vqmmc-supply = <&vddio_boot>;
+};
+
+&crg {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&crg2 {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&usb2_phy_v2 {
+	status = "okay";
+	portnum = <1>;
+};
+
+&usb3_phy_v2 {
+	status = "okay";
+	portnum = <0>;
+};
+
+&usb2_phy2_v2 {
+	status = "okay";
+	portnum = <1>;
+};
+
+&usb3_phy2_v2 {
+	status = "okay";
+	portnum = <0>;
+};
+
+/* Debug */
+&uart_a {
+	status = "okay";
+};
