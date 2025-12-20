@@ -33,7 +33,7 @@
 	};
 
 	chosen {
-		stdout-path = "serial0:115200n8";
+		stdout-path = "serial0:921600n8";
 	};
 
 	memory@0 {
@@ -46,13 +46,6 @@
 		regulator-name = "VDDIO_BOOT";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-	};
-
-	vddao_3v3: regulator-vddao_3v3 {
-		compatible = "regulator-fixed";
-		regulator-name = "VDDAO_3V3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
 	};
 
 	vddio_ao18: regulator-vddio_ao18 {
@@ -81,37 +74,9 @@
 		enable-active-low;
 	};
 
-	vccio_c: gpio-regulator-vccio_c {
-		compatible = "regulator-gpio";
-
-		regulator-name = "VCCIO_C";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <3300000>;
-
-		gpios = <&gpio GPIOD_9 GPIO_ACTIVE_HIGH>;
-		gpios-states = <0>;
-
-		states = <3300000 0>,
-				<1800000 1>;
-	};
-
 	emmc_pwrseq: emmc-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
-		/*reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>;*/
-	};
-
-	wifi32k: wifi32k {
-		compatible = "pwm-clock";
-		#clock-cells = <0>;
-		clock-frequency = <32768>;
-		pwms = <&pwm_ef 0 30518 0>; /* PWM_E at 32.768KHz */
-	};
-
-	sdio_pwrseq: sdio-pwrseq {
-		compatible = "mmc-pwrseq-simple";
-		reset-gpios = <&gpio GPIOX_6 GPIO_ACTIVE_LOW>;
-		clocks = <&wifi32k>;
-		clock-names = "ext_clock";
+		/* reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>; */
 	};
 
 	tee: tee {
@@ -129,20 +94,6 @@
 	cali_val = <0xa0000>;
 };
 
-&i2c3 {
-       status= "disabled";
-       pinctrl-names = "default";
-       pinctrl-0 = <&i2c3_pins1>;
-       clock-frequency = <100000>;
-};
-
-&i2c_AO_A {
-	status= "disabled";
-	clock-frequency = <100000>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c0_ao_pins1>;
-};
-
 &ir {
 	status = "disabled";
 	/* pinctrl-0 = <&remote_input_ao_pins>; */
@@ -150,14 +101,9 @@
 };
 
 &pinctrl_periphs {
-	bl_pwm_off_pins:bl_pwm_off_pin {
-		mux {
-			groups = "GPIOH_5";
-			function = "gpio_periphs";
-			output-high;
-		};
+	bl_pwm_off_pins: bl_pwm_off_pin {
 	};
-}; /* end of pinctrl_periphs */
+};
 
 &saradc {
 	status = "okay";
@@ -166,28 +112,6 @@
 
 &amhdmitx {
 	enc_idx = <2>; /* value can be 0 or 2 */
-};
-
-/* Wireless SDIO Module */
-&sd_emmc_a {
-	status = "disabled";
-	/*pinctrl-0 = <&sdio_pins>;*/
-	/*pinctrl-names = "default";*/
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	bus-width = <4>;
-	cap-sd-highspeed;
-	max-frequency = <100000000>;
-
-	non-removable;
-	disable-wp;
-	card_type = <3>;
-
-	mmc-pwrseq = <&sdio_pwrseq>;
-
-	vmmc-supply = <&vddao_3v3>;
-	vqmmc-supply = <&vddio_boot>;
 };
 
 /* SD card */
@@ -214,7 +138,6 @@
 	sd_hs_tx_phase = <0>;
 
 	vmmc-supply = <&sd_3v3>;
-	vqmmc-supply = <&vccio_c>;
 };
 
 /* eMMC */
@@ -248,125 +171,45 @@
 	vqmmc-supply = <&vddio_boot>;
 };
 
-/* nand */
-&nand {
-	status = "okay";
-	pinctrl-names = "default", "nand_cs_only";
-	pinctrl-0 = <&all_nand_pins>;
-	pinctrl-1 = <&nand_cs_pins>;
-};
-
 &crg {
-        status = "okay";
-        dr_mode = "host";
+	status = "okay";
+	dr_mode = "host";
 };
 
 &crg2 {
-        status = "okay";
-        dr_mode = "host";
+	status = "okay";
+	dr_mode = "host";
 };
 
 &usb2_phy_v2 {
-        status = "okay";
-        portnum = <1>;
+	status = "okay";
+	portnum = <1>;
 };
 
 &usb3_phy_v2 {
-        status = "okay";
-        portnum = <0>;
-        gpio-vbus-power = "GPIOY_5";
-        gpios = <&gpio GPIOY_5 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+	portnum = <0>;
+	gpio-vbus-power = "GPIOH_4";
+	gpios = <&gpio GPIOH_4 GPIO_ACTIVE_HIGH>;
 };
 
 &usb2_phy2_v2 {
-        status = "okay";
-        portnum = <1>;
-};
-
-&usb3_phy2_v2 {
-        status = "okay";
-        portnum = <0>;
-};
-
-&pwm_ef {
 	status = "okay";
-	/* pinctrl-0 = <&pwm_e_pins>; */
-	/* pinctrl-names = "default"; */
+	portnum = <1>;
 };
 
+/*
+ * Do not turn on USB OTG power supply,
+ * because it is used for image burning via A to A cable.
+ */
+&usb3_phy2_v2 {
+	status = "okay";
+	portnum = <0>;
+	/* gpio-vbus-power = "GPIOH_5"; */
+	/* gpios = <&gpio GPIOH_5 GPIO_ACTIVE_HIGH>; */
+};
+
+/* Debug */
 &uart_a {
 	status = "okay";
-};
-
-/* This is connected to the Bluetooth module: */
-&uart_b {
-	status = "disabled";
-	/* pinctrl-0 = <&a_uart_pins>; */
-	/* pinctrl-names = "default";  */
-	uart-has-rtscts;
-};
-
-&spifc {
-	status = "disabled";
-	cs-gpios = <&gpio GPIOB_12 GPIO_ACTIVE_HIGH>;
-//	clocks = <&clkc CLKID_CLK81>;
-//	clocks = <&clkc CLKID_SPIFC>;
-	clocks = <&clkc CLKID_SYS_PLL>;
-	clock-names = "core";
-	spi-flash@0 {
-		status = "okay";
-		compatible = "winbond,w25q256fw", "jedec,spi-nor";
-		//spi-max-frequency = <83333333>; / * crc error */
-		spi-max-frequency = <40000000>;
-	};
-};
-
-&spicc0 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc0_pins>;
-	cs-gpios = <&gpio GPIOT_21 0>;
-};
-
-&spicc1 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins_1>;
-	cs-gpios = <&gpio GPIOC_3 0>;
-};
-
-&spicc2 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc2_pins>;
-	cs-gpios = <&gpio GPIOY_3 0>;
-};
-
-&spicc3 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc3_pins>;
-	cs-gpios = <&gpio GPIOT_9 0>;
-	spi-flash@0 {
-		compatible = "spi-flash";
-		reg = <0>;
-		spi-max-frequency = <16000000>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <1>;
-		status = "disabled";
-        };
-};
-
-&spicc4 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc4_pins>;
-	cs-gpios = <&gpio GPIOZ_3 0>;
-};
-
-&spicc5 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc5_pins>;
-	cs-gpios = <&gpio GPIOZ_7 0>;
 };

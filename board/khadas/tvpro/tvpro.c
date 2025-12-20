@@ -234,14 +234,6 @@ int board_init(void)
 
 	set_update_key_pull_up();
 
-	/*
-	 * Turn on USB host power supply,
-	 * but do not turn on USB OTG power supply,
-	 * because it is used for burning
-	 */
-	run_command("gpio set GPIOH_4", 0);
-	/* run_command("gpio set GPIOH_5", 0); */
-
 	return 0;
 }
 
