@@ -161,6 +161,8 @@
 &usb3_phy2_v2 {
 	status = "okay";
 	portnum = <0>;
+	gpio-vbus-power = "GPIOY_16";
+	gpios = <&gpio GPIOY_16 GPIO_ACTIVE_HIGH>;
 };
 
 /* Debug */
