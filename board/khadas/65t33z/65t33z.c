@@ -225,12 +225,18 @@ int board_init(void)
 #endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 
+/*
+ * U-boot crashes when attempting to read data
+ * from a USB flash drive under the USB5744 Hub.
+ */
+#if 0
 	/* Turn on Android USB power supply */
 	run_command("gpio set GPIOT_23", 0);
 	/* Turn on USB5744 (UU21) power supply */
 	run_command("gpio set GPIOC_0", 0);
 	/* Turn on USB5744 (UU1) power supply */
 	run_command("gpio set GPIOC_1", 0);
+#endif
 
 	return 0;
 }
