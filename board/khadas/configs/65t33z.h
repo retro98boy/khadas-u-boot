@@ -306,7 +306,6 @@
             "run upgrade_check;"\
             "run check_display;"\
             "run storeargs;"\
-            "run upgrade_key;"\
             "run switch_bootmode;"
 
 #ifndef CONFIG_HDMITX_ONLY
